@@ -182,8 +182,9 @@ int? _minorUnits(String raw) {
     1 => 0,
     2 when parts[1].length == 1 => int.parse(parts[1]) * 10,
     2 => int.parse(parts[1]),
-    _ => return null,
+    _ => null,
   };
+  if (fraction == null) return null;
   return whole * 100 + fraction;
 }
 
