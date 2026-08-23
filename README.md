@@ -6,7 +6,7 @@ Public extension workspace for BeeCount capability contracts, pure-Dart automati
 
 **Stage 1 contract/core development is approved.** Work is limited to the pure-Dart API contract, pure-Dart automation core, sanitized fixtures, tests, ADRs, and narrowly scoped standalone Android feasibility spikes. Android production services, permissions, and BeeCount integration remain unapproved.
 
-The development server must not run Flutter, Dart, Gradle, code generation, dependency resolution, compilation, or Android builds. The approved Remote Builder may run fixed, reviewed verification profiles against an immutable commit SHA on GitHub-hosted runners. Remote verification does not approve Android production implementation or host integration by itself.
+The development server must not run Flutter, Gradle, code generation, dependency resolution, static analysis, tests, compilation, or Android builds. Low-resource `dart format` is allowed because it neither resolves dependencies nor compiles code. The approved Remote Builder runs complete fixed verification profiles against an immutable commit SHA on GitHub-hosted runners. Remote verification does not approve Android production implementation or host integration by itself.
 
 Exit criteria are maintained in `../auto-bookkeeping-research/docs/phase-0-auto-bookkeeping-readiness-checklist.md`.
 

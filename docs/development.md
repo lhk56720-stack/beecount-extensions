@@ -4,7 +4,7 @@
 
 The repository is in Stage 1 contract/core development. Pure-Dart package manifests, API/core source, sanitized fixtures, tests, schemas, ADRs, and separately scoped Android feasibility spikes are allowed. Android production services, permissions, bundle implementation, and BeeCount integration remain blocked.
 
-Do not run Flutter, Dart, Gradle, code generation, dependency resolution, compilation, or Android build commands on the development server. The user approved fixed Remote Builder profiles on 2026-08-24 under these conditions:
+Do not run Flutter, Gradle, code generation, dependency resolution, static analysis, tests, compilation, or Android build commands on the development server. Low-resource `dart format` is allowed because it does not resolve dependencies or compile source. The user approved fixed Remote Builder profiles on 2026-08-24 under these conditions:
 
 - source must already be committed and pushed to the registered public GitHub repository;
 - the controller resolves the source ref to an immutable 40-character commit SHA;
