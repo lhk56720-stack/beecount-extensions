@@ -1,0 +1,63 @@
+{
+  "schemaVersion": 1,
+  "id": "candidate-fixture-expense-1",
+  "targetLedgerId": "ledger-fixture-1",
+  "createdAt": "2026-08-23T10:00:00Z",
+  "updatedAt": "2026-08-23T10:00:00Z",
+  "occurredAt": "2026-08-23T09:59:58Z",
+  "amountMinor": 1280,
+  "currency": "CNY",
+  "direction": "expense",
+  "transactionKind": "purchase",
+  "merchant": "示例商户",
+  "note": null,
+  "accountHintToken": null,
+  "resolvedAccountId": "account-fixture-1",
+  "resolvedToAccountId": null,
+  "resolvedCategoryId": null,
+  "categoryHint": "餐饮",
+  "relatedTransactionId": null,
+  "stableTransactionIdHash": null,
+  "sources": [
+    {
+      "capability": "notification",
+      "sourceAppId": "wechat",
+      "packageName": "com.tencent.mm",
+      "eventIdHash": "hmac-sha256:event-fixture-1",
+      "supersedesEventIdHash": null,
+      "lifecycle": "posted",
+      "isCurrent": true,
+      "observedAt": "2026-08-23T10:00:00Z",
+      "parserVersion": 1
+    }
+  ],
+  "evidence": [
+    {
+      "field": "amount",
+      "sourceIdentityKey": "notification:wechat:hmac-sha256:event-fixture-1",
+      "start": 5,
+      "end": 10
+    },
+    {
+      "field": "direction",
+      "sourceIdentityKey": "notification:wechat:hmac-sha256:event-fixture-1",
+      "start": 0,
+      "end": 4
+    },
+    {
+      "field": "transactionKind",
+      "sourceIdentityKey": "notification:wechat:hmac-sha256:event-fixture-1",
+      "start": 0,
+      "end": 4
+    },
+    {
+      "field": "occurredAt",
+      "sourceIdentityKey": "notification:wechat:hmac-sha256:event-fixture-1",
+      "start": null,
+      "end": null
+    }
+  ],
+  "parserConfidence": 0.93,
+  "state": "detected",
+  "parserVersion": 1
+}

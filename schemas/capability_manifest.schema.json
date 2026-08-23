@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://beecount.local/schemas/capability_manifest.schema.json",
+  "title": "BeeCount capability manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "version",
+    "defaultEnabled",
+    "permissions",
+    "dependencies",
+    "dataRetention",
+    "networkBehavior"
+  ],
+  "properties": {
+    "id": { "type": "string", "pattern": "^[a-z][a-z0-9_.-]+$" },
+    "version": { "type": "string" },
+    "defaultEnabled": { "type": "boolean" },
+    "permissions": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
+    "dependencies": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
+    "dataRetention": { "type": "string" },
+    "networkBehavior": { "type": "string", "minLength": 1 }
+  }
+}

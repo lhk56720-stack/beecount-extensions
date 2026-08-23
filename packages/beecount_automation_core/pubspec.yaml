@@ -1,0 +1,14 @@
+name: beecount_automation_core
+description: Pure-Dart candidate lifecycle, deduplication, and posting policy.
+version: 0.1.0-dev.1
+publish_to: none
+
+environment:
+  sdk: ^3.6.0
+
+dependencies:
+  beecount_extension_api:
+    path: ../beecount_extension_api
+
+dev_dependencies:
+  test: ^1.25.8

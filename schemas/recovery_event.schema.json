@@ -1,0 +1,138 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://beecount.local/schemas/recovery_event.schema.json",
+  "title": "Encrypted platform recovery event",
+  "description": "Android-private crash recovery record. Sensitive payload must never be persisted as plaintext.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "captureId",
+    "sourceIdentityHash",
+    "capability",
+    "sourceAppId",
+    "lifecycle",
+    "observedAt",
+    "capturedAt",
+    "firstEnqueuedAt",
+    "expiresAt",
+    "attemptCount",
+    "availableAt",
+    "state",
+    "leaseTokenHash",
+    "leaseExpiresAt",
+    "lastSafeErrorCode",
+    "payloadSchemaVersion",
+    "cipher"
+  ],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "captureId": { "type": "string", "minLength": 1 },
+    "sourceIdentityHash": {
+      "type": "string",
+      "pattern": "^hmac-sha256:[A-Za-z0-9_-]+$",
+      "description": "Stable index without exposing the platform event ID."
+    },
+    "supersedesSourceIdentityHash": {
+      "type": ["string", "null"],
+      "pattern": "^hmac-sha256:[A-Za-z0-9_-]+$"
+    },
+    "capability": {
+      "enum": ["notification", "accessibility", "sms"]
+    },
+    "sourceAppId": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_.-]+$"
+    },
+    "packageName": { "type": ["string", "null"], "minLength": 1 },
+    "lifecycle": {
+      "enum": ["posted", "updated", "removed", "snapshotChanged"]
+    },
+    "observedAt": { "type": "string", "format": "date-time" },
+    "capturedAt": { "type": "string", "format": "date-time" },
+    "firstEnqueuedAt": { "type": "string", "format": "date-time" },
+    "expiresAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Must be no later than 24 hours after firstEnqueuedAt."
+    },
+    "attemptCount": { "type": "integer", "minimum": 0 },
+    "availableAt": { "type": "string", "format": "date-time" },
+    "state": {
+      "enum": ["available", "leased", "retryWaiting", "deadLetter"]
+    },
+    "leaseTokenHash": {
+      "type": ["string", "null"],
+      "pattern": "^hmac-sha256:[A-Za-z0-9_-]+$",
+      "description": "Optional one-way token verifier; raw lease tokens must not be persisted."
+    },
+    "leaseExpiresAt": { "type": ["string", "null"], "format": "date-time" },
+    "lastSafeErrorCode": {
+      "type": ["string", "null"],
+      "pattern": "^[a-z0-9_.-]{1,80}$"
+    },
+    "payloadSchemaVersion": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Version of the complete CapturedAutomationEvent encoded inside cipher."
+    },
+    "cipher": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "algorithm",
+            "keyVersion",
+            "nonce",
+            "payloadCiphertext"
+          ],
+          "properties": {
+            "algorithm": { "const": "AES-256-GCM" },
+            "keyVersion": { "type": "integer", "minimum": 1 },
+            "nonce": { "type": "string", "minLength": 1 },
+            "payloadCiphertext": { "type": "string", "minLength": 1 }
+          }
+        },
+        { "type": "null" }
+      ],
+      "description": "Encrypted CapturedAutomationEvent payload. Null only after permanent failure destroys the payload."
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": { "state": { "const": "deadLetter" } },
+        "required": ["state"]
+      },
+      "then": {
+        "properties": {
+          "cipher": { "type": "null" },
+          "lastSafeErrorCode": { "type": "string", "minLength": 1 }
+        }
+      },
+      "else": {
+        "properties": { "cipher": { "type": "object" } }
+      }
+    },
+    {
+      "if": {
+        "properties": { "state": { "const": "leased" } },
+        "required": ["state"]
+      },
+      "then": {
+        "required": ["leaseTokenHash", "leaseExpiresAt"],
+        "properties": {
+          "leaseTokenHash": { "type": "string" },
+          "leaseExpiresAt": { "type": "string", "format": "date-time" }
+        }
+      },
+      "else": {
+        "properties": {
+          "leaseTokenHash": { "type": "null" },
+          "leaseExpiresAt": { "type": "null" }
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,193 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://beecount.local/schemas/candidate.schema.json",
+  "title": "BeeCount automation candidate",
+  "description": "Privacy-minimized structured candidate. Raw notification, SMS, accessibility, or image content is intentionally excluded.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "id",
+    "createdAt",
+    "updatedAt",
+    "occurredAt",
+    "amountMinor",
+    "currency",
+    "direction",
+    "transactionKind",
+    "sources",
+    "evidence",
+    "state",
+    "parserVersion"
+  ],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "id": { "type": "string", "minLength": 1 },
+    "targetLedgerId": { "type": ["string", "null"], "minLength": 1 },
+    "createdAt": { "type": "string", "format": "date-time" },
+    "updatedAt": { "type": "string", "format": "date-time" },
+    "occurredAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Normalized transaction time. Observation time is kept separately on each source. Missing transaction-time evidence prevents auto-posting."
+    },
+    "amountMinor": {
+      "type": ["integer", "null"],
+      "minimum": 1,
+      "description": "Absolute amount in the currency's minor unit. Null means unresolved and can never auto-post."
+    },
+    "currency": {
+      "type": ["string", "null"],
+      "pattern": "^[A-Z]{3}$"
+    },
+    "direction": {
+      "enum": ["unknown", "expense", "income", "transfer", "refund"]
+    },
+    "transactionKind": {
+      "enum": [
+        "unknown",
+        "purchase",
+        "incomeReceipt",
+        "refund",
+        "transfer",
+        "creditCardRepayment",
+        "redPacketSent",
+        "redPacketReceived",
+        "redPacketReturned",
+        "fee",
+        "preauthorization"
+      ]
+    },
+    "merchant": {
+      "type": ["string", "null"],
+      "minLength": 1,
+      "maxLength": 80
+    },
+    "note": {
+      "type": ["string", "null"],
+      "minLength": 1,
+      "maxLength": 120
+    },
+    "accountHintToken": {
+      "type": ["string", "null"],
+      "pattern": "^hmac-sha256:[A-Za-z0-9_-]+$"
+    },
+    "resolvedAccountId": { "type": ["string", "null"], "minLength": 1 },
+    "resolvedToAccountId": { "type": ["string", "null"], "minLength": 1 },
+    "resolvedCategoryId": { "type": ["string", "null"], "minLength": 1 },
+    "categoryHint": {
+      "type": ["string", "null"],
+      "minLength": 1,
+      "maxLength": 40
+    },
+    "relatedTransactionId": { "type": ["string", "null"], "minLength": 1 },
+    "stableTransactionIdHash": {
+      "type": ["string", "null"],
+      "pattern": "^hmac-sha256:[A-Za-z0-9_-]+$"
+    },
+    "sources": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/sourceEvent" }
+    },
+    "evidence": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/evidence" }
+    },
+    "parserConfidence": {
+      "type": ["number", "null"],
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Diagnostic only. Posting decisions must not use this value as a sole gate."
+    },
+    "state": {
+      "enum": [
+        "detected",
+        "pending",
+        "autoPosted",
+        "confirmed",
+        "ignored",
+        "duplicate",
+        "expired",
+        "correctionPending",
+        "undone",
+        "error"
+      ]
+    },
+    "parserVersion": { "type": "integer", "minimum": 1 }
+  },
+  "$defs": {
+    "sourceEvent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "capability",
+        "sourceAppId",
+        "eventIdHash",
+        "lifecycle",
+        "isCurrent",
+        "observedAt",
+        "parserVersion"
+      ],
+      "properties": {
+        "capability": {
+          "enum": [
+            "notification",
+            "accessibility",
+            "sms",
+            "screenshot",
+            "imageShare",
+            "billImport",
+            "manual"
+          ]
+        },
+        "sourceAppId": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_.-]+$"
+        },
+        "packageName": { "type": ["string", "null"], "minLength": 1 },
+        "eventIdHash": {
+          "type": "string",
+          "pattern": "^hmac-sha256:[A-Za-z0-9_-]+$"
+        },
+        "supersedesEventIdHash": {
+          "type": ["string", "null"],
+          "pattern": "^hmac-sha256:[A-Za-z0-9_-]+$"
+        },
+        "lifecycle": {
+          "enum": ["posted", "updated", "removed", "snapshotChanged"]
+        },
+        "isCurrent": { "type": "boolean" },
+        "observedAt": { "type": "string", "format": "date-time" },
+        "parserVersion": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["field", "sourceIdentityKey"],
+      "properties": {
+        "field": {
+          "enum": [
+            "amount",
+            "currency",
+            "direction",
+            "transactionKind",
+            "merchant",
+            "account",
+            "toAccount",
+            "occurredAt",
+            "stableTransactionId",
+            "relationship"
+          ]
+        },
+        "sourceIdentityKey": {
+          "type": "string",
+          "pattern": "^[a-z][a-zA-Z0-9]*:[a-zA-Z0-9_.-]+:hmac-sha256:[A-Za-z0-9_-]+$"
+        },
+        "start": { "type": ["integer", "null"], "minimum": 0 },
+        "end": { "type": ["integer", "null"], "minimum": 0 }
+      }
+    }
+  }
+}

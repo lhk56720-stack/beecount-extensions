@@ -1,0 +1,9 @@
+{
+  "id": "presentation.hyperos_island",
+  "version": "1.0.0",
+  "defaultEnabled": false,
+  "permissions": ["android.permission.POST_NOTIFICATIONS", "xiaomi.sceneApproval"],
+  "dependencies": [],
+  "dataRetention": "minimum presentation state only",
+  "networkBehavior": "none for local presentation; no transaction text upload"
+}

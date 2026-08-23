@@ -1,0 +1,9 @@
+{
+  "id": "automation.accessibility_text",
+  "version": "1.0.0",
+  "defaultEnabled": false,
+  "permissions": ["android.accessibilityService"],
+  "dependencies": [],
+  "dataRetention": "minimized target-page text memory-only; complete node trees never persisted",
+  "networkBehavior": "none unless AI text enhancement is separately enabled"
+}

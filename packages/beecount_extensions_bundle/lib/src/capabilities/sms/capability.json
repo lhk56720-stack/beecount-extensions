@@ -1,0 +1,9 @@
+{
+  "id": "automation.sms_new_messages",
+  "version": "1.0.0",
+  "defaultEnabled": false,
+  "permissions": ["android.permission.RECEIVE_SMS"],
+  "dependencies": [],
+  "dataRetention": "new suspected transaction message memory-only; recovery data at most 24h",
+  "networkBehavior": "none unless AI text enhancement is separately enabled"
+}

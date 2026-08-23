@@ -1,0 +1,9 @@
+{
+  "id": "automation.ai_text",
+  "version": "1.0.0",
+  "defaultEnabled": false,
+  "permissions": [],
+  "dependencies": [],
+  "dataRetention": "request memory-only; structured candidate local-only",
+  "networkBehavior": "user-configured endpoint only; no silent provider fallback"
+}

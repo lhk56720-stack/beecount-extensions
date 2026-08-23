@@ -1,0 +1,10 @@
+name: beecount_extension_api
+description: Stable pure-Dart contracts between BeeCount and compiled extensions.
+version: 0.1.0-dev.1
+publish_to: none
+
+environment:
+  sdk: ^3.6.0
+
+dev_dependencies:
+  test: ^1.25.8
