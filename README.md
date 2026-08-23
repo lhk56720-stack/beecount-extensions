@@ -4,7 +4,7 @@ Public extension workspace for BeeCount capability contracts, pure-Dart automati
 
 ## Current phase
 
-**Stage 1 contract/core development is approved.** Work is limited to the pure-Dart API contract, pure-Dart automation core, sanitized fixtures, tests, ADRs, and narrowly scoped standalone Android feasibility spikes. Android production services, permissions, and BeeCount integration remain unapproved.
+**Stage 2 notification MVP development is approved.** ADR-0004 permits a default-off Android notification listener, bounded source registry, encrypted recovery queue, local deterministic parsing, Bundle composition, and thin BeeCount host integration. AI data egress, accessibility, SMS, HyperOS presentation, Shizuku, and Root remain unapproved.
 
 The development server must not run Flutter, Gradle, code generation, dependency resolution, static analysis, tests, compilation, or Android builds. Low-resource `dart format` is allowed because it neither resolves dependencies nor compiles code. The approved Remote Builder runs complete fixed verification profiles against an immutable commit SHA on GitHub-hosted runners. Remote verification does not approve Android production implementation or host integration by itself.
 

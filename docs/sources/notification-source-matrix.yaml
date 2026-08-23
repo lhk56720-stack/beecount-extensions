@@ -1,0 +1,47 @@
+schema_version: 1
+updated_at: 2026-08-24
+policy:
+  default_enabled: false
+  unregistered_packages_allowed: false
+  auto_post_requires_verified_template: true
+sources:
+  - id: wechat
+    package: com.tencent.mm
+    display_name: 微信
+    parser_phase: first
+    device_status: not_tested
+  - id: alipay
+    package: com.eg.android.AlipayGphone
+    display_name: 支付宝
+    parser_phase: first
+    device_status: not_tested
+  - id: unionpay
+    package: com.unionpay
+    display_name: 云闪付
+    parser_phase: second
+    device_status: not_tested
+  - id: xiaomi_wallet
+    package: com.miui.tsmclient
+    display_name: 小米钱包
+    parser_phase: second
+    device_status: not_tested
+  - id: jd
+    package: com.jingdong.app.mall
+    display_name: 京东
+    parser_phase: later
+    device_status: not_tested
+  - id: meituan
+    package: com.sankuai.meituan
+    display_name: 美团
+    parser_phase: later
+    device_status: not_tested
+  - id: douyin
+    package: com.ss.android.ugc.aweme
+    display_name: 抖音
+    parser_phase: later
+    device_status: not_tested
+  - id: taobao
+    package: com.taobao.taobao
+    display_name: 淘宝
+    parser_phase: later
+    device_status: not_tested

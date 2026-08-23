@@ -19,7 +19,7 @@ extensions:
 capabilities:
   notification:
     phase: first
-    status: not_tested
+    status: implementation_approved_not_tested
   ai_text:
     phase: first
     status: not_tested

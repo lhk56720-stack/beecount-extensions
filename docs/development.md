@@ -2,7 +2,7 @@
 
 ## Current gate
 
-The repository is in Stage 1 contract/core development. Pure-Dart package manifests, API/core source, sanitized fixtures, tests, schemas, ADRs, and separately scoped Android feasibility spikes are allowed. Android production services, permissions, bundle implementation, and BeeCount integration remain blocked.
+The repository is in Stage 2 notification MVP development. ADR-0004 approves the Android notification listener, bounded source registry, encrypted recovery queue, permission state, local deterministic parsing, Bundle composition, and a thin BeeCount host integration. AI data egress, accessibility, SMS, HyperOS presentation, active screenshots, Shizuku, and Root remain blocked.
 
 Do not run Flutter, Gradle, code generation, dependency resolution, static analysis, tests, compilation, or Android build commands on the development server. Low-resource `dart format` is allowed because it does not resolve dependencies or compile source. The user approved fixed Remote Builder profiles on 2026-08-24 under these conditions:
 
@@ -12,7 +12,7 @@ Do not run Flutter, Gradle, code generation, dependency resolution, static analy
 - credentials, raw notification data, private fixtures, APKs, and build archives must never be committed;
 - contract verification does not approve Android permissions, services, or BeeCount host integration.
 
-Stage 1 remote verification is limited to formatting checks, static analysis, package tests, and schema validation for `beecount_extension_api` and `beecount_automation_core`. Android APK builds become meaningful only after a reviewed host integration consumes the extension bundle.
+Remote verification must expand with each implemented package. Android APK builds become release candidates only after a reviewed host integration consumes a pinned extension commit and the extension-disabled regression passes.
 
 ## Future implementation workflow
 
