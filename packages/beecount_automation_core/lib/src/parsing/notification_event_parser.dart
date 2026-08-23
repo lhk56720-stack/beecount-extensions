@@ -62,7 +62,8 @@ final class NotificationEventParser implements AutomationEventParser {
 
     final amountMatches = _findAmounts(text);
     final distinctAmounts = amountMatches.map((match) => match.minor).toSet();
-    final amountMinor = distinctAmounts.length == 1 ? distinctAmounts.single : null;
+    final amountMinor =
+        distinctAmounts.length == 1 ? distinctAmounts.single : null;
     final semantic = _semanticFor(text);
     final issues = <ParserIssueCode>[
       if (amountMatches.isEmpty) ParserIssueCode.missingAmount,
@@ -126,8 +127,9 @@ final class NotificationEventParser implements AutomationEventParser {
     );
     return AutomationParserResult(
       event: event,
-      disposition:
-          issues.isEmpty ? ParserDisposition.candidate : ParserDisposition.incomplete,
+      disposition: issues.isEmpty
+          ? ParserDisposition.candidate
+          : ParserDisposition.incomplete,
       issues: issues,
       candidates: <AutomationCandidate>[candidate],
       safeReasonCode: issues.isEmpty ? null : 'parser.required_fields_missing',
@@ -165,7 +167,8 @@ List<_AmountMatch> _findAmounts(String text) {
       if (minor == null || minor <= 0) continue;
       final rangeKey = '${match.start}:${match.end}';
       if (!seenRanges.add(rangeKey)) continue;
-      matches.add(_AmountMatch(minor: minor, start: match.start, end: match.end));
+      matches
+          .add(_AmountMatch(minor: minor, start: match.start, end: match.end));
     }
   }
   matches.sort((left, right) => left.start.compareTo(right.start));
@@ -242,7 +245,8 @@ _SemanticMatch _semanticFor(String text) {
       AutomationTransactionKind.incomeReceipt,
     );
   }
-  if (_containsAny(text, const <String>['支付成功', '付款成功', '消费', '扣款', '支出', '已支付'])) {
+  if (_containsAny(
+      text, const <String>['支付成功', '付款成功', '消费', '扣款', '支出', '已支付'])) {
     return const _SemanticMatch(
       AutomationDirection.expense,
       AutomationTransactionKind.purchase,
@@ -269,7 +273,8 @@ bool _containsAny(String text, List<String> values) {
 }
 
 final List<RegExp> _amountPatterns = <RegExp>[
-  RegExp(r'(?:¥|￥|人民币|RMB|CNY)\s*(?<amount>\d{1,9}(?:,\d{3})*(?:\.\d{1,2})?)', caseSensitive: false),
+  RegExp(r'(?:¥|￥|人民币|RMB|CNY)\s*(?<amount>\d{1,9}(?:,\d{3})*(?:\.\d{1,2})?)',
+      caseSensitive: false),
   RegExp(r'(?<amount>\d{1,9}(?:,\d{3})*(?:\.\d{1,2})?)\s*元'),
 ];
 

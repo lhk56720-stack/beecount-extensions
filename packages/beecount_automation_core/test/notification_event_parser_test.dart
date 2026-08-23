@@ -7,7 +7,8 @@ void main() {
     supportedSourceAppIds: const <String>{'wechat', 'alipay'},
   );
 
-  test('parses an evidence-backed purchase and keeps replay ID stable', () async {
+  test('parses an evidence-backed purchase and keeps replay ID stable',
+      () async {
     final event = notificationEvent(
       fragments: const <CapturedTextFragment>[
         CapturedTextFragment(
