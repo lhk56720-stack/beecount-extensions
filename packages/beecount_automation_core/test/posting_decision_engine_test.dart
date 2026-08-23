@@ -13,6 +13,7 @@ void main() {
         enabledCapabilities: const <AutomationSourceCapability>{
           AutomationSourceCapability.notification,
         },
+        verifiedAutoPostSourceAppIds: const <String>{'wechat'},
       );
 
   test('complete evidence-backed expense can auto-post', () {
@@ -63,6 +64,27 @@ void main() {
 
     expect(decision.kind, PostingDecisionKind.pending);
     expect(decision.reasons, contains(PostingBlockReason.possibleDuplicate));
+  });
+
+  test('unverified source template can only create a pending candidate', () {
+    final decision = engine.decide(
+      candidate: testCandidate(),
+      deduplication: DeduplicationDecision.unique,
+      policy: PostingPolicy(
+        automationEnabled: true,
+        enabledSourceAppIds: const <String>{'wechat'},
+        enabledCapabilities: const <AutomationSourceCapability>{
+          AutomationSourceCapability.notification,
+        },
+        verifiedAutoPostSourceAppIds: const <String>{},
+      ),
+    );
+
+    expect(decision.kind, PostingDecisionKind.pending);
+    expect(
+      decision.reasons,
+      contains(PostingBlockReason.sourceTemplateNotVerified),
+    );
   });
 
   test('refund without original transaction waits for confirmation', () {
@@ -279,6 +301,7 @@ void main() {
         enabledCapabilities: const <AutomationSourceCapability>{
           AutomationSourceCapability.notification,
         },
+        verifiedAutoPostSourceAppIds: const <String>{'alipay'},
       ),
     );
 

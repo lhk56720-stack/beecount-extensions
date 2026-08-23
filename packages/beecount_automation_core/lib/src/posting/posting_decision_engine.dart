@@ -14,6 +14,7 @@ enum PostingDecisionKind {
 enum PostingBlockReason {
   automationDisabled,
   sourceDisabled,
+  sourceTemplateNotVerified,
   candidateStateNotEligible,
   ledgerMissing,
   amountMissing,
@@ -42,13 +43,17 @@ final class PostingPolicy {
     required this.automationEnabled,
     required Set<String> enabledSourceAppIds,
     required Set<AutomationSourceCapability> enabledCapabilities,
+    required Set<String> verifiedAutoPostSourceAppIds,
   })  : enabledSourceAppIds = Set<String>.unmodifiable(enabledSourceAppIds),
         enabledCapabilities =
-            Set<AutomationSourceCapability>.unmodifiable(enabledCapabilities);
+            Set<AutomationSourceCapability>.unmodifiable(enabledCapabilities),
+        verifiedAutoPostSourceAppIds =
+            Set<String>.unmodifiable(verifiedAutoPostSourceAppIds);
 
   final bool automationEnabled;
   final Set<String> enabledSourceAppIds;
   final Set<AutomationSourceCapability> enabledCapabilities;
+  final Set<String> verifiedAutoPostSourceAppIds;
 }
 
 final class PostingDecision {
@@ -115,6 +120,12 @@ final class PostingDecisionEngine {
     }
 
     final reasons = <PostingBlockReason>[];
+    if (!activeSources.any(
+      (source) =>
+          policy.verifiedAutoPostSourceAppIds.contains(source.sourceAppId),
+    )) {
+      reasons.add(PostingBlockReason.sourceTemplateNotVerified);
+    }
     if (candidate.state != AutomationCandidateState.detected &&
         candidate.state != AutomationCandidateState.pending) {
       reasons.add(PostingBlockReason.candidateStateNotEligible);
