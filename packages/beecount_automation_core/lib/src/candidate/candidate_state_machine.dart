@@ -7,7 +7,8 @@ final class CandidateTransitionException implements Exception {
   final AutomationCandidateState to;
 
   @override
-  String toString() => 'Invalid candidate transition: ${from.name} -> ${to.name}';
+  String toString() =>
+      'Invalid candidate transition: ${from.name} -> ${to.name}';
 }
 
 final class CandidateStateMachine {

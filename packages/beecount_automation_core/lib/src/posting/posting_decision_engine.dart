@@ -167,10 +167,10 @@ final class PostingDecisionEngine {
       final reason = _postingReasonFor(issue);
       if (!reasons.contains(reason)) reasons.add(reason);
     }
-    final needsRelationshipEvidence = candidate.transactionKind ==
-            AutomationTransactionKind.refund ||
-        candidate.transactionKind ==
-            AutomationTransactionKind.redPacketReturned;
+    final needsRelationshipEvidence =
+        candidate.transactionKind == AutomationTransactionKind.refund ||
+            candidate.transactionKind ==
+                AutomationTransactionKind.redPacketReturned;
     if (needsRelationshipEvidence &&
         !candidate.hasEvidence(
           CandidateEvidenceField.relationship,
@@ -201,8 +201,7 @@ final class PostingDecisionEngine {
         occurredAt: candidate.occurredAt,
         amountMinor: candidate.amountMinor!,
         currency: candidate.currency!,
-        hostType:
-            transactionSemantics.hostTypeFor(candidate.transactionKind)!,
+        hostType: transactionSemantics.hostTypeFor(candidate.transactionKind)!,
         direction: candidate.direction,
         transactionKind: candidate.transactionKind,
         accountId: candidate.resolvedAccountId!,

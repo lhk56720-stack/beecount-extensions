@@ -30,8 +30,7 @@ void main() {
       evidence: const <CandidateEvidence>[
         CandidateEvidence(
           field: CandidateEvidenceField.amount,
-          sourceIdentityKey:
-              'notification:wechat:hmac-sha256:event-1',
+          sourceIdentityKey: 'notification:wechat:hmac-sha256:event-1',
         ),
       ],
       state: AutomationCandidateState.detected,
@@ -82,14 +81,14 @@ void main() {
       ..['evidence'] = <Map<String, Object?>>[
         <String, Object?>{
           'field': 'amount',
-          'sourceIdentityKey':
-              'notification:wechat:hmac-sha256:event-current',
+          'sourceIdentityKey': 'notification:wechat:hmac-sha256:event-current',
           'start': null,
           'end': null,
         },
       ];
     expect(
-      AutomationCandidate.fromJson(historyJson).sources
+      AutomationCandidate.fromJson(historyJson)
+          .sources
           .where((source) => source.isCurrent)
           .single
           .eventIdHash,

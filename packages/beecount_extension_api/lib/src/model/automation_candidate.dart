@@ -289,8 +289,7 @@ final class AutomationCandidate {
       resolvedCategoryId: _optionalString(json, 'resolvedCategoryId'),
       categoryHint: _optionalString(json, 'categoryHint'),
       relatedTransactionId: _optionalString(json, 'relatedTransactionId'),
-      stableTransactionIdHash:
-          _optionalString(json, 'stableTransactionIdHash'),
+      stableTransactionIdHash: _optionalString(json, 'stableTransactionIdHash'),
       sources: rawSources
           .map((item) => SourceEventReference.fromJson(
                 Map<String, Object?>.from(item as Map),
@@ -453,8 +452,7 @@ void _validateCandidate(AutomationCandidate candidate) {
 
   final currentSources = candidate.sources.where(
     (source) =>
-        source.isCurrent &&
-        source.lifecycle != PlatformEventLifecycle.removed,
+        source.isCurrent && source.lifecycle != PlatformEventLifecycle.removed,
   );
   if (currentSources.isEmpty) {
     throw ArgumentError.value(

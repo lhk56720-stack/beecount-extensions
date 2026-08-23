@@ -145,7 +145,9 @@ final class DeduplicationEngine {
       );
     }
 
-    if (incoming.sourceIdentityKeys.intersection(existing.sourceIdentityKeys).isNotEmpty) {
+    if (incoming.sourceIdentityKeys
+        .intersection(existing.sourceIdentityKeys)
+        .isNotEmpty) {
       return DeduplicationDecision(
         kind: DeduplicationKind.update,
         matchedId: existing.id,
@@ -194,8 +196,10 @@ final class DeduplicationEngine {
       return null;
     }
 
-    final distanceMs =
-        incoming.occurredAt.difference(existing.occurredAt).inMilliseconds.abs();
+    final distanceMs = incoming.occurredAt
+        .difference(existing.occurredAt)
+        .inMilliseconds
+        .abs();
     if (distanceMs > fuzzyWindow.inMilliseconds) return null;
 
     final reasons = <DeduplicationReason>[
@@ -205,8 +209,8 @@ final class DeduplicationEngine {
     final merchantMatches = _normalizedMerchant(incoming.merchant) != null &&
         _normalizedMerchant(incoming.merchant) ==
             _normalizedMerchant(existing.merchant);
-    final accountMatches = incoming.accountId != null &&
-        incoming.accountId == existing.accountId;
+    final accountMatches =
+        incoming.accountId != null && incoming.accountId == existing.accountId;
     final hasComparableSource = incoming.sourceCapabilities.isNotEmpty &&
         existing.sourceCapabilities.isNotEmpty &&
         incoming.sourceAppIds.isNotEmpty &&

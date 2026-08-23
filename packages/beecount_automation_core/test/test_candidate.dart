@@ -22,8 +22,7 @@ AutomationCandidate testCandidate({
   String? relatedTransactionId,
   String? stableTransactionIdHash,
   double? parserConfidence,
-  List<SourceEventReference> additionalSources =
-      const <SourceEventReference>[],
+  List<SourceEventReference> additionalSources = const <SourceEventReference>[],
   AutomationCandidateState state = AutomationCandidateState.detected,
   Set<CandidateEvidenceField> evidenceFields = const <CandidateEvidenceField>{
     CandidateEvidenceField.amount,

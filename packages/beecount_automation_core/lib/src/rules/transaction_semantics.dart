@@ -46,10 +46,10 @@ final class TransactionSemantics {
       issues.add(TransactionSemanticIssue.directionConflict);
     }
 
-    final needsRelationship = candidate.transactionKind ==
-            AutomationTransactionKind.refund ||
-        candidate.transactionKind ==
-            AutomationTransactionKind.redPacketReturned;
+    final needsRelationship =
+        candidate.transactionKind == AutomationTransactionKind.refund ||
+            candidate.transactionKind ==
+                AutomationTransactionKind.redPacketReturned;
     if (needsRelationship && candidate.relatedTransactionId == null) {
       issues.add(TransactionSemanticIssue.relationshipMissing);
     } else if (needsRelationship &&
@@ -57,15 +57,14 @@ final class TransactionSemantics {
       issues.add(TransactionSemanticIssue.relationshipEvidenceMissing);
     }
 
-    final isTransfer = candidate.transactionKind ==
-            AutomationTransactionKind.transfer ||
-        candidate.transactionKind ==
-            AutomationTransactionKind.creditCardRepayment;
+    final isTransfer =
+        candidate.transactionKind == AutomationTransactionKind.transfer ||
+            candidate.transactionKind ==
+                AutomationTransactionKind.creditCardRepayment;
     if (isTransfer) {
       if (candidate.resolvedToAccountId == null) {
         issues.add(TransactionSemanticIssue.transferDestinationMissing);
-      } else if (candidate.resolvedToAccountId ==
-          candidate.resolvedAccountId) {
+      } else if (candidate.resolvedToAccountId == candidate.resolvedAccountId) {
         issues.add(TransactionSemanticIssue.transferAccountsEqual);
       }
     }
@@ -80,18 +79,18 @@ final class TransactionSemantics {
     return switch (kind) {
       AutomationTransactionKind.unknown => null,
       AutomationTransactionKind.purchase ||
-        AutomationTransactionKind.redPacketSent ||
-        AutomationTransactionKind.fee ||
-        AutomationTransactionKind.preauthorization =>
+      AutomationTransactionKind.redPacketSent ||
+      AutomationTransactionKind.fee ||
+      AutomationTransactionKind.preauthorization =>
         AutomationDirection.expense,
       AutomationTransactionKind.incomeReceipt ||
-        AutomationTransactionKind.redPacketReceived =>
+      AutomationTransactionKind.redPacketReceived =>
         AutomationDirection.income,
       AutomationTransactionKind.refund ||
-        AutomationTransactionKind.redPacketReturned =>
+      AutomationTransactionKind.redPacketReturned =>
         AutomationDirection.refund,
       AutomationTransactionKind.transfer ||
-        AutomationTransactionKind.creditCardRepayment =>
+      AutomationTransactionKind.creditCardRepayment =>
         AutomationDirection.transfer,
     };
   }
@@ -100,17 +99,17 @@ final class TransactionSemantics {
     return switch (kind) {
       AutomationTransactionKind.unknown => null,
       AutomationTransactionKind.purchase ||
-        AutomationTransactionKind.redPacketSent ||
-        AutomationTransactionKind.fee ||
-        AutomationTransactionKind.preauthorization =>
+      AutomationTransactionKind.redPacketSent ||
+      AutomationTransactionKind.fee ||
+      AutomationTransactionKind.preauthorization =>
         HostTransactionType.expense,
       AutomationTransactionKind.incomeReceipt ||
-        AutomationTransactionKind.refund ||
-        AutomationTransactionKind.redPacketReceived ||
-        AutomationTransactionKind.redPacketReturned =>
+      AutomationTransactionKind.refund ||
+      AutomationTransactionKind.redPacketReceived ||
+      AutomationTransactionKind.redPacketReturned =>
         HostTransactionType.income,
       AutomationTransactionKind.transfer ||
-        AutomationTransactionKind.creditCardRepayment =>
+      AutomationTransactionKind.creditCardRepayment =>
         HostTransactionType.transfer,
     };
   }

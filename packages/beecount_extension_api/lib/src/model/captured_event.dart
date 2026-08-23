@@ -17,9 +17,11 @@ final class CapturedEventSource {
   final AutomationSourceCapability capability;
   final String sourceAppId;
   final String? packageName;
+
   /// Raw platform event ID. Memory-only or encrypted recovery payload only.
   final String eventId;
   final String eventIdHash;
+
   /// Raw superseded ID. Memory-only or encrypted recovery payload only.
   final String? supersedesEventId;
   final String? supersedesEventIdHash;

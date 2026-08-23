@@ -210,7 +210,8 @@ void main() {
     expect(decision.kind, PostingDecisionKind.autoPost);
   });
 
-  test('removed optional source does not block a valid notification source', () {
+  test('removed optional source does not block a valid notification source',
+      () {
     final time = DateTime.utc(2026, 8, 23, 10);
     final decision = engine.decide(
       candidate: testCandidate(
