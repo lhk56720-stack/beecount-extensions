@@ -1,0 +1,26 @@
+name: beecount_extensions_bundle
+description: BeeCount extension composition, settings, and automation UI.
+version: 0.1.0-dev.1
+publish_to: none
+
+environment:
+  sdk: ^3.6.0
+  flutter: ">=3.27.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  beecount_extension_api:
+    path: ../beecount_extension_api
+  beecount_automation_core:
+    path: ../beecount_automation_core
+  beecount_automation_android:
+    path: ../beecount_automation_android
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true
