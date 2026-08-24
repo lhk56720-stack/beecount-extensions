@@ -21,6 +21,7 @@ class BeecountAutomationAndroidPlugin :
     private lateinit var channel: MethodChannel
     private lateinit var preferences: CapturePreferences
     private lateinit var eventQueue: SecureEventQueue
+    private lateinit var stateStore: SecureBundleStateStore
     private lateinit var queueExecutor: ExecutorService
     private val mainHandler = Handler(Looper.getMainLooper())
 
@@ -28,6 +29,7 @@ class BeecountAutomationAndroidPlugin :
         applicationContext = binding.applicationContext
         preferences = CapturePreferences(applicationContext)
         eventQueue = SecureEventQueue(applicationContext)
+        stateStore = SecureBundleStateStore(applicationContext)
         queueExecutor = Executors.newSingleThreadExecutor { runnable ->
             Thread(runnable, "beecount-automation-platform").apply {
                 isDaemon = true
@@ -97,6 +99,18 @@ class BeecountAutomationAndroidPlugin :
                 eventQueue.purgeExpired(
                     requireNotNull(call.argument<Number>("nowMs")).toLong(),
                 )
+            }
+            "readLocalState" -> runQueueOperation(result) {
+                stateStore.read()
+            }
+            "writeLocalState" -> runQueueOperation(result) {
+                val state = requireNotNull(call.argument<Map<String, Any?>>("state"))
+                stateStore.write(state)
+                true
+            }
+            "clearLocalState" -> runQueueOperation(result) {
+                stateStore.clear()
+                true
             }
             else -> result.notImplemented()
         }

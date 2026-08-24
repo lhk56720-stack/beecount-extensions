@@ -112,4 +112,21 @@ void main() {
       throwsArgumentError,
     );
   });
+
+  test('encrypted local state bridge keeps structured values', () async {
+    await messenger.setMockMethodCallHandler(channel, (call) async {
+      expect(call.method, 'readLocalState');
+      return <String, Object?>{
+        'schemaVersion': 1,
+        'settings': <String, Object?>{'automationEnabled': false},
+        'candidates': <Object?>[],
+      };
+    });
+
+    final state =
+        await NotificationAutomationPlatform(channel: channel).readLocalState();
+
+    expect(state?['schemaVersion'], 1);
+    expect(state?['candidates'], isEmpty);
+  });
 }

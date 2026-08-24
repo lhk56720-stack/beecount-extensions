@@ -105,8 +105,38 @@ final class NotificationAutomationPlatform implements PlatformEventQueuePort {
   }
 
   Future<bool> openNotificationAccessSettings() async {
-    return await _channel.invokeMethod<bool>('openNotificationAccessSettings') ??
+    return await _channel
+            .invokeMethod<bool>('openNotificationAccessSettings') ??
         false;
+  }
+
+  Future<Map<String, Object?>?> readLocalState() async {
+    final result = await _channel.invokeMethod<Object?>('readLocalState');
+    if (result == null) return null;
+    return Map<String, Object?>.from(_asMap(result, 'localState'));
+  }
+
+  Future<void> writeLocalState(Map<String, Object?> state) async {
+    final result = await _channel.invokeMethod<bool>(
+      'writeLocalState',
+      <String, Object?>{'state': state},
+    );
+    if (result != true) {
+      throw PlatformException(
+        code: 'automation.state_write_failed',
+        message: 'The encrypted local state was not saved.',
+      );
+    }
+  }
+
+  Future<void> clearLocalState() async {
+    final result = await _channel.invokeMethod<bool>('clearLocalState');
+    if (result != true) {
+      throw PlatformException(
+        code: 'automation.state_clear_failed',
+        message: 'The encrypted local state was not cleared.',
+      );
+    }
   }
 
   @override
@@ -150,9 +180,7 @@ final class NotificationAutomationPlatform implements PlatformEventQueuePort {
     final rawLease = result['lease'];
     return PlatformEventRenewalResult(
       status: status,
-      lease: rawLease == null
-          ? null
-          : _decodeLease(_asMap(rawLease, 'lease')),
+      lease: rawLease == null ? null : _decodeLease(_asMap(rawLease, 'lease')),
     );
   }
 
@@ -161,7 +189,8 @@ final class NotificationAutomationPlatform implements PlatformEventQueuePort {
     required String leaseToken,
     required String captureId,
   }) async {
-    return _mutationResult(await _invokeMap('acknowledgeEvent', <String, Object?>{
+    return _mutationResult(
+        await _invokeMap('acknowledgeEvent', <String, Object?>{
       'leaseToken': leaseToken,
       'captureId': captureId,
     }));
@@ -317,5 +346,6 @@ int _requiredInt(Map<Object?, Object?> map, String key) {
 }
 
 DateTime _dateTimeFromMs(Map<Object?, Object?> map, String key) {
-  return DateTime.fromMillisecondsSinceEpoch(_requiredInt(map, key), isUtc: true);
+  return DateTime.fromMillisecondsSinceEpoch(_requiredInt(map, key),
+      isUtc: true);
 }
