@@ -55,12 +55,13 @@ final class AutomationSettingsPage extends StatelessWidget {
                 title: const Text('智能自动入账'),
                 subtitle: const Text('仅对已真机验证的模板生效；其他账单进入待确认'),
                 value: settings.autoPostEnabled,
-                onChanged: settings.automationEnabled && settings.notificationEnabled
-                    ? (value) => _save(
-                          controller,
-                          settings.copyWith(autoPostEnabled: value),
-                        )
-                    : null,
+                onChanged:
+                    settings.automationEnabled && settings.notificationEnabled
+                        ? (value) => _save(
+                              controller,
+                              settings.copyWith(autoPostEnabled: value),
+                            )
+                        : null,
               ),
               const Divider(),
               _ledgerSelector(controller: controller, settings: settings),

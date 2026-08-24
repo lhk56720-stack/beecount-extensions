@@ -36,12 +36,14 @@ final class AutomationCandidateListPage extends StatelessWidget {
                           IconButton(
                             tooltip: '忽略',
                             icon: const Icon(Icons.close),
-                            onPressed: () => controller.ignoreCandidate(candidate.id),
+                            onPressed: () =>
+                                controller.ignoreCandidate(candidate.id),
                           ),
                           IconButton(
                             tooltip: '确认入账',
                             icon: const Icon(Icons.check),
-                            onPressed: () => controller.confirmCandidate(candidate.id),
+                            onPressed: () =>
+                                controller.confirmCandidate(candidate.id),
                           ),
                         ],
                       ),

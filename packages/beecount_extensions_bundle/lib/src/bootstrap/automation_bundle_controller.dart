@@ -131,7 +131,8 @@ final class AutomationBundleController extends ChangeNotifier {
       candidate,
       allowUnverifiedSourceForManualConfirmation: true,
     );
-    if (decision.kind != PostingDecisionKind.autoPost || decision.command == null) {
+    if (decision.kind != PostingDecisionKind.autoPost ||
+        decision.command == null) {
       _replaceCandidate(_asPending(candidate));
       await _persist();
       notifyListeners();
@@ -232,13 +233,16 @@ final class AutomationBundleController extends ChangeNotifier {
     final result = await _host.transactions.postCandidate(command);
     if (result.status == PostingResultStatus.created ||
         result.status == PostingResultStatus.alreadyApplied) {
-      final targetState =
-          isManual ? AutomationCandidateState.confirmed : AutomationCandidateState.autoPosted;
-      final transitionSource = targetState == AutomationCandidateState.autoPosted
-          ? candidate
-          : beforePosting;
+      final targetState = isManual
+          ? AutomationCandidateState.confirmed
+          : AutomationCandidateState.autoPosted;
+      final transitionSource =
+          targetState == AutomationCandidateState.autoPosted
+              ? candidate
+              : beforePosting;
       _replaceCandidate(
-        _stateMachine.transition(transitionSource, targetState, _host.clock.now),
+        _stateMachine.transition(
+            transitionSource, targetState, _host.clock.now),
       );
       if (result.transactionId != null) {
         _state = AutomationBundleState(
@@ -307,18 +311,20 @@ final class AutomationBundleController extends ChangeNotifier {
     final sourceId = candidate.sources.first.sourceAppId;
     return _copyCandidate(
       candidate,
-      targetLedgerId: currentLedger?.isWritable == true ? currentLedger!.id : null,
+      targetLedgerId:
+          currentLedger?.isWritable == true ? currentLedger!.id : null,
       accountId: settings.sourceAccountIds[sourceId],
     );
   }
 
   Future<void> _refreshHostChoices() async {
     _ledgers = await _host.ledgers.listLedgers();
-    final ledgerId = settings.targetLedgerId ??
-        (await _host.ledgers.getCurrentLedger())?.id;
+    final ledgerId =
+        settings.targetLedgerId ?? (await _host.ledgers.getCurrentLedger())?.id;
     _accounts = ledgerId == null
         ? const <AccountSummary>[]
-        : await _host.accounts.listAccounts(ledgerId: ledgerId, currency: 'CNY');
+        : await _host.accounts
+            .listAccounts(ledgerId: ledgerId, currency: 'CNY');
   }
 
   Future<void> _synchronizeCapture() async {

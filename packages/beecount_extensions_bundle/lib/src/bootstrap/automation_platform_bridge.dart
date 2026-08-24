@@ -16,7 +16,8 @@ abstract interface class AutomationPlatformBridge
   Future<void> writeLocalState(Map<String, Object?> state);
 }
 
-final class AndroidAutomationPlatformBridge implements AutomationPlatformBridge {
+final class AndroidAutomationPlatformBridge
+    implements AutomationPlatformBridge {
   AndroidAutomationPlatformBridge({NotificationAutomationPlatform? platform})
       : _platform = platform ?? NotificationAutomationPlatform();
 
@@ -43,7 +44,8 @@ final class AndroidAutomationPlatformBridge implements AutomationPlatformBridge 
       _platform.writeLocalState(state);
 
   @override
-  Future<void> enqueue(CapturedAutomationEvent event) => _platform.enqueue(event);
+  Future<void> enqueue(CapturedAutomationEvent event) =>
+      _platform.enqueue(event);
 
   @override
   Future<PlatformEventLease> lease({
