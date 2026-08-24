@@ -79,8 +79,13 @@ private fun Any?.toPlatformValue(): Any? = when (this) {
     is JSONObject -> keys().asSequence().associateWith { key ->
         get(key).toPlatformValue()
     }
-    is JSONArray -> buildList {
-        for (index in 0 until length()) add(get(index).toPlatformValue())
+    is JSONArray -> {
+        val array = this
+        buildList<Any?> {
+            for (index in 0 until array.length()) {
+                add(array.get(index).toPlatformValue())
+            }
+        }
     }
     else -> this
 }
