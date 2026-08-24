@@ -28,7 +28,7 @@ void main() {
   });
 
   test('status keeps user preference separate from permission state', () async {
-    await messenger.setMockMethodCallHandler(channel, (call) async {
+    messenger.setMockMethodCallHandler(channel, (call) async {
       expect(call.method, 'getStatus');
       return <String, Object?>{
         'platformSupported': true,
@@ -54,7 +54,7 @@ void main() {
       () async {
     final firstEnqueuedAt = DateTime.utc(2026, 8, 24, 10);
     final rawExpiresAt = firstEnqueuedAt.add(const Duration(hours: 24));
-    await messenger.setMockMethodCallHandler(channel, (call) async {
+    messenger.setMockMethodCallHandler(channel, (call) async {
       expect(call.method, 'leaseEvents');
       return <String, Object?>{
         'token': 'lease-1',
@@ -114,7 +114,7 @@ void main() {
   });
 
   test('encrypted local state bridge keeps structured values', () async {
-    await messenger.setMockMethodCallHandler(channel, (call) async {
+    messenger.setMockMethodCallHandler(channel, (call) async {
       expect(call.method, 'readLocalState');
       return <String, Object?>{
         'schemaVersion': 1,
