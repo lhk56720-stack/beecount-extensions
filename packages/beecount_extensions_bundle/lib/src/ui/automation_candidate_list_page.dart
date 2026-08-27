@@ -75,9 +75,8 @@ final class AutomationCandidateListPage extends StatelessWidget {
       return;
     }
     if (!context.mounted) return;
-    final message = result.succeeded
-        ? '已确认入账'
-        : _confirmationFailureMessage(result);
+    final message =
+        result.succeeded ? '已确认入账' : _confirmationFailureMessage(result);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(message)),
     );
