@@ -6,6 +6,18 @@ import 'package:flutter/foundation.dart';
 import '../model/automation_bundle_state.dart';
 import 'automation_platform_bridge.dart';
 
+final class CandidateConfirmationResult {
+  const CandidateConfirmationResult({
+    required this.succeeded,
+    this.blockReasons = const <PostingBlockReason>[],
+    this.safeErrorCode,
+  });
+
+  final bool succeeded;
+  final List<PostingBlockReason> blockReasons;
+  final String? safeErrorCode;
+}
+
 /// Foreground coordinator for notification-first automatic bookkeeping.
 ///
 /// The controller intentionally never retains raw notification payloads after a
@@ -50,6 +62,7 @@ final class AutomationBundleController extends ChangeNotifier {
   NotificationCollectionStatus? get collectionStatus => _collectionStatus;
   List<LedgerSummary> get ledgers => _ledgers;
   List<AccountSummary> get accounts => _accounts;
+  List<AutomationDiagnosticEvent> get diagnostics => _state.diagnostics;
 
   List<AutomationCandidate> get pendingCandidates => candidates
       .where((candidate) =>
@@ -70,16 +83,27 @@ final class AutomationBundleController extends ChangeNotifier {
     }
     await _refreshHostChoices();
     await _synchronizeCapture();
+    _recordDiagnostic('automation.initialized');
+    await _persist();
     _initialized = true;
     notifyListeners();
     await processQueuedEvents();
   }
 
   Future<void> refresh() async {
-    await _refreshHostChoices();
-    await _synchronizeCapture();
-    notifyListeners();
-    await processQueuedEvents();
+    try {
+      await _refreshHostChoices();
+      await _synchronizeCapture();
+      _recordDiagnostic('automation.foreground_refresh');
+      await _persist();
+      notifyListeners();
+      await processQueuedEvents();
+    } catch (_) {
+      _safeErrorCode = 'automation.foreground_refresh_failed';
+      _recordDiagnostic('automation.foreground_refresh_failed');
+      _host.logger.warning('automation.foreground_refresh_failed');
+      notifyListeners();
+    }
   }
 
   Future<bool> openNotificationAccessSettings() =>
@@ -90,7 +114,9 @@ final class AutomationBundleController extends ChangeNotifier {
       settings: next,
       candidates: _state.candidates,
       postedTransactionIds: _state.postedTransactionIds,
+      diagnostics: _state.diagnostics,
     );
+    _recordDiagnostic('settings.updated');
     await _persist();
     await _synchronizeCapture();
     notifyListeners();
@@ -101,6 +127,7 @@ final class AutomationBundleController extends ChangeNotifier {
     if (!_initialized || _processing) return;
     if (!settings.automationEnabled || !settings.notificationEnabled) return;
     _processing = true;
+    _recordDiagnostic('queue.processing_started');
     notifyListeners();
     try {
       while (true) {
@@ -109,14 +136,24 @@ final class AutomationBundleController extends ChangeNotifier {
           leaseDuration: const Duration(minutes: 2),
         );
         if (lease.events.isEmpty) break;
+        _recordDiagnostic('queue.lease_received');
         for (final leased in lease.events) {
           await _consumeLeasedEvent(lease.token, leased);
         }
       }
       _collectionStatus = await _platform.getStatus();
+      _recordDiagnostic('queue.processing_completed');
+      await _persist();
       _safeErrorCode = null;
     } catch (_) {
       _safeErrorCode = 'automation.queue_process_failed';
+      _recordDiagnostic('queue.processing_failed');
+      try {
+        await _persist();
+      } catch (_) {
+        // The in-memory diagnostic remains visible even if local persistence
+        // is temporarily unavailable.
+      }
       _host.logger.warning('automation.queue_process_failed');
     } finally {
       _processing = false;
@@ -124,9 +161,19 @@ final class AutomationBundleController extends ChangeNotifier {
     }
   }
 
-  Future<bool> confirmCandidate(String candidateId) async {
-    final candidate = _candidateById(candidateId);
-    if (candidate == null) return false;
+  Future<CandidateConfirmationResult> confirmCandidate(
+    String candidateId,
+  ) async {
+    final savedCandidate = _candidateById(candidateId);
+    if (savedCandidate == null) {
+      return const CandidateConfirmationResult(
+        succeeded: false,
+        safeErrorCode: 'automation.candidate_not_found',
+      );
+    }
+    final candidate = await _resolveCandidate(savedCandidate);
+    _replaceCandidate(candidate);
+    await _persist();
     final decision = await _decide(
       candidate,
       allowUnverifiedSourceForManualConfirmation: true,
@@ -134,12 +181,38 @@ final class AutomationBundleController extends ChangeNotifier {
     if (decision.kind != PostingDecisionKind.autoPost ||
         decision.command == null) {
       _replaceCandidate(_asPending(candidate));
+      _safeErrorCode = 'automation.confirmation_blocked';
+      for (final reason in decision.reasons) {
+        _recordDiagnostic(
+          'confirmation.blocked.${_safeEnumName(reason.name)}',
+          sourceAppId: _sourceAppId(candidate),
+        );
+      }
       await _persist();
       notifyListeners();
-      return false;
+      return CandidateConfirmationResult(
+        succeeded: false,
+        blockReasons: decision.reasons,
+        safeErrorCode: _safeErrorCode,
+      );
     }
-    await _post(candidate, decision.command!, isManual: true);
-    return true;
+    final result = await _post(candidate, decision.command!, isManual: true);
+    final succeeded = result.status == PostingResultStatus.created ||
+        result.status == PostingResultStatus.alreadyApplied;
+    return CandidateConfirmationResult(
+      succeeded: succeeded,
+      safeErrorCode: succeeded ? null : result.safeErrorCode,
+    );
+  }
+
+  Future<void> clearDiagnostics() async {
+    _state = AutomationBundleState(
+      settings: _state.settings,
+      candidates: _state.candidates,
+      postedTransactionIds: _state.postedTransactionIds,
+    );
+    await _persist();
+    notifyListeners();
   }
 
   Future<void> ignoreCandidate(String candidateId) async {
@@ -162,6 +235,10 @@ final class AutomationBundleController extends ChangeNotifier {
   ) async {
     final result = await _parser.parse(leased.event);
     if (result.disposition == ParserDisposition.retryableFailure) {
+      _recordDiagnostic(
+        'parser.retryable_failure',
+        sourceAppId: leased.event.source.sourceAppId,
+      );
       await _platform.fail(
         leaseToken: leaseToken,
         captureId: leased.event.id,
@@ -172,6 +249,10 @@ final class AutomationBundleController extends ChangeNotifier {
       return;
     }
     if (result.disposition == ParserDisposition.permanentFailure) {
+      _recordDiagnostic(
+        'parser.permanent_failure',
+        sourceAppId: leased.event.source.sourceAppId,
+      );
       await _platform.fail(
         leaseToken: leaseToken,
         captureId: leased.event.id,
@@ -184,6 +265,12 @@ final class AutomationBundleController extends ChangeNotifier {
       final candidate = await _resolveCandidate(parsed);
       _replaceCandidate(candidate);
       await _persist();
+      _recordDiagnostic(
+        parsed.state == AutomationCandidateState.pending
+            ? 'candidate.pending'
+            : 'candidate.detected',
+        sourceAppId: leased.event.source.sourceAppId,
+      );
       await _tryAutomaticPosting(candidate);
     }
     await _platform.acknowledge(
@@ -222,7 +309,7 @@ final class AutomationBundleController extends ChangeNotifier {
     }
   }
 
-  Future<void> _post(
+  Future<PostingResult> _post(
     AutomationCandidate candidate,
     PostingCommand command, {
     required bool isManual,
@@ -252,8 +339,14 @@ final class AutomationBundleController extends ChangeNotifier {
             ..._state.postedTransactionIds,
             candidate.id: result.transactionId!,
           },
+          diagnostics: _state.diagnostics,
         );
       }
+      _safeErrorCode = null;
+      _recordDiagnostic(
+        isManual ? 'confirmation.posted' : 'candidate.auto_posted',
+        sourceAppId: _sourceAppId(candidate),
+      );
     } else {
       _replaceCandidate(
         _stateMachine.transition(
@@ -263,9 +356,14 @@ final class AutomationBundleController extends ChangeNotifier {
         ),
       );
       _safeErrorCode = result.safeErrorCode ?? 'automation.post_rejected';
+      _recordDiagnostic(
+        'confirmation.post_failed',
+        sourceAppId: _sourceAppId(candidate),
+      );
     }
     await _persist();
     notifyListeners();
+    return result;
   }
 
   Future<PostingDecision> _decide(
@@ -372,11 +470,38 @@ final class AutomationBundleController extends ChangeNotifier {
       settings: _state.settings,
       candidates: next,
       postedTransactionIds: _state.postedTransactionIds,
+      diagnostics: _state.diagnostics,
+    );
+  }
+
+  void _recordDiagnostic(String code, {String? sourceAppId}) {
+    final next = <AutomationDiagnosticEvent>[
+      AutomationDiagnosticEvent(
+        occurredAt: _host.clock.now,
+        code: code,
+        sourceAppId: sourceAppId,
+      ),
+      ..._state.diagnostics,
+    ];
+    if (next.length > 200) next.removeRange(200, next.length);
+    _state = AutomationBundleState(
+      settings: _state.settings,
+      candidates: _state.candidates,
+      postedTransactionIds: _state.postedTransactionIds,
+      diagnostics: next,
     );
   }
 
   Future<void> _persist() => _platform.writeLocalState(_state.toJson());
 }
+
+String? _sourceAppId(AutomationCandidate candidate) =>
+    candidate.sources.isEmpty ? null : candidate.sources.first.sourceAppId;
+
+String _safeEnumName(String name) => name.replaceAllMapped(
+      RegExp(r'[A-Z]'),
+      (match) => '_${match.group(0)!.toLowerCase()}',
+    );
 
 AutomationCandidate _copyCandidate(
   AutomationCandidate candidate, {

@@ -47,6 +47,13 @@ void main() {
       ),
       candidates: <AutomationCandidate>[candidate],
       postedTransactionIds: const <String, String>{'candidate-1': 'tx-1'},
+      diagnostics: <AutomationDiagnosticEvent>[
+        AutomationDiagnosticEvent(
+          occurredAt: time,
+          code: 'confirmation.blocked.account_missing',
+          sourceAppId: 'wechat',
+        ),
+      ],
     );
 
     final restored = AutomationBundleState.fromJson(original.toJson());
@@ -56,6 +63,11 @@ void main() {
     expect(restored.candidates.single.id, candidate.id);
     expect(restored.candidates.single.amountMinor, 1280);
     expect(restored.postedTransactionIds['candidate-1'], 'tx-1');
+    expect(restored.diagnostics.single.sourceAppId, 'wechat');
+    expect(
+      restored.diagnostics.single.code,
+      'confirmation.blocked.account_missing',
+    );
     expect(restored.toJson().toString(), isNot(contains('platform-event-1')));
   });
 }

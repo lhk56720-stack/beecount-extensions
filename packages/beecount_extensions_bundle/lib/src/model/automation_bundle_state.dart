@@ -1,5 +1,42 @@
 import 'package:beecount_extension_api/beecount_extension_api.dart';
 
+final class AutomationDiagnosticEvent {
+  const AutomationDiagnosticEvent({
+    required this.occurredAt,
+    required this.code,
+    this.sourceAppId,
+  });
+
+  final DateTime occurredAt;
+  final String code;
+  final String? sourceAppId;
+
+  factory AutomationDiagnosticEvent.fromJson(Map<String, Object?> json) {
+    final code = json['code'];
+    final occurredAt = json['occurredAt'];
+    final sourceAppId = json['sourceAppId'];
+    if (code is! String ||
+        !RegExp(r'^[a-z0-9_.-]{1,80}$').hasMatch(code) ||
+        occurredAt is! String ||
+        (sourceAppId != null &&
+            (sourceAppId is! String ||
+                !RegExp(r'^[a-z0-9_.-]{1,40}$').hasMatch(sourceAppId)))) {
+      throw const FormatException('invalid automation diagnostic event');
+    }
+    return AutomationDiagnosticEvent(
+      occurredAt: DateTime.parse(occurredAt).toUtc(),
+      code: code,
+      sourceAppId: sourceAppId as String?,
+    );
+  }
+
+  Map<String, Object?> toJson() => <String, Object?>{
+        'occurredAt': occurredAt.toUtc().toIso8601String(),
+        'code': code,
+        if (sourceAppId != null) 'sourceAppId': sourceAppId,
+      };
+}
+
 final class AutomationSettings {
   AutomationSettings({
     required this.automationEnabled,
@@ -77,19 +114,24 @@ final class AutomationBundleState {
     required this.settings,
     required List<AutomationCandidate> candidates,
     required Map<String, String> postedTransactionIds,
+    List<AutomationDiagnosticEvent> diagnostics =
+        const <AutomationDiagnosticEvent>[],
   })  : candidates = List<AutomationCandidate>.unmodifiable(candidates),
         postedTransactionIds =
-            Map<String, String>.unmodifiable(postedTransactionIds);
+            Map<String, String>.unmodifiable(postedTransactionIds),
+        diagnostics = List<AutomationDiagnosticEvent>.unmodifiable(diagnostics);
 
   factory AutomationBundleState.defaults() => AutomationBundleState(
         settings: AutomationSettings.defaults(),
         candidates: const <AutomationCandidate>[],
         postedTransactionIds: const <String, String>{},
+        diagnostics: const <AutomationDiagnosticEvent>[],
       );
 
   final AutomationSettings settings;
   final List<AutomationCandidate> candidates;
   final Map<String, String> postedTransactionIds;
+  final List<AutomationDiagnosticEvent> diagnostics;
 
   factory AutomationBundleState.fromJson(Map<String, Object?> json) {
     if (json['schemaVersion'] != 1) {
@@ -97,6 +139,7 @@ final class AutomationBundleState {
     }
     final rawCandidates = json['candidates'];
     final rawReceipts = json['postedTransactionIds'];
+    final rawDiagnostics = json['diagnostics'];
     if (rawCandidates is! List || rawReceipts is! Map) {
       throw const FormatException('invalid bundle state');
     }
@@ -112,6 +155,15 @@ final class AutomationBundleState {
           )
           .toList(growable: false),
       postedTransactionIds: Map<String, String>.from(rawReceipts),
+      diagnostics: rawDiagnostics == null
+          ? const <AutomationDiagnosticEvent>[]
+          : (rawDiagnostics as List)
+              .map(
+                (item) => AutomationDiagnosticEvent.fromJson(
+                  Map<String, Object?>.from(item as Map),
+                ),
+              )
+              .toList(growable: false),
     );
   }
 
@@ -120,5 +172,6 @@ final class AutomationBundleState {
         'settings': settings.toJson(),
         'candidates': candidates.map((item) => item.toJson()).toList(),
         'postedTransactionIds': postedTransactionIds,
+        'diagnostics': diagnostics.map((item) => item.toJson()).toList(),
       };
 }

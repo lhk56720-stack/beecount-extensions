@@ -12,6 +12,7 @@
 
 - Android plugin 在 `noBackupFilesDir` 保存一个经过 Android Keystore AES-256-GCM 加密的 Bundle 状态快照；Flutter 只读写结构化候选、设置、映射和安全回执，不保存通知原文。
 - 状态快照不进入 Android Backup、BeeCount 云同步、账单导出或日志。单个快照限制为 1 MiB，候选数量由 Bundle 限制为 500 条并按保留策略清理。
+- 同一加密状态快照可保存最近 200 条脱敏诊断事件，仅包含时间、登记来源 ID、状态转换和安全机器码；不得包含通知正文、金额、商户、账户信息、平台事件 ID、HMAC 身份或交易内容，用户可独立清除。
 - Bundle 是队列消费、解析、候选持久化、映射、去重和 Core 入账门禁的唯一协调者。Android plugin 不理解交易语义，BeeCount host 不读取通知原文。
 - 宿主 `TransactionPort` 使用入账命令的 `idempotencyKey` 派生确定性 UUID，作为 BeeCount 交易 `syncId`。写入前按该 UUID 查询：完全一致返回 `alreadyApplied`，不一致返回 `idempotencyConflict`；同一进程内串行化检查和写入。
 - 候选先持久化为 pending/posting 状态，再调用宿主端口，最后保存正式交易 ID。进程在宿主写入后崩溃时，重放会通过确定性 `syncId` 找回原交易，不创建第二条账。

@@ -4,6 +4,7 @@
 - Never log raw notifications, SMS bodies, account numbers, or AI input text.
 - Raw platform events are memory-only by default. A crash-recovery queue, when implemented, must expire within 24 hours.
 - Candidate and deduplication data are local and excluded from BeeCount cloud sync and export by default.
+- Automatic-bookkeeping diagnostics retain at most 200 encrypted local structural events. They may contain a timestamp, reviewed source ID, state transition, and safe machine error code, but never notification text, amount, merchant, account data, platform event ID, HMAC identity, or transaction content. Users can clear them independently.
 - Platform event IDs are HMAC-tokenized before entering candidates; evidence stores only that identity and offsets, never normalized text copies.
 - AI data egress, SMS, and accessibility each require an independent capability switch and an approved ADR. Accessibility is a first-phase optional enhancement, never a notification dependency, and may process only minimized text from enabled apps' payment-result pages.
 - Active screenshot capture, Shizuku, Root, Xposed, and private hooks are outside the first implementation scope. Existing user-triggered screenshot bookkeeping remains owned by BeeCount and only joins shared deduplication before posting.

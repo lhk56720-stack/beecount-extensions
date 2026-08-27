@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import '../bootstrap/automation_bundle_controller.dart';
 import '../model/automation_bundle_state.dart';
 import 'automation_candidate_list_page.dart';
+import 'automation_diagnostics_page.dart';
 
 final class AutomationSettingsPage extends StatelessWidget {
   const AutomationSettingsPage({super.key, required this.controller});
@@ -85,6 +86,18 @@ final class AutomationSettingsPage extends StatelessWidget {
                 onTap: () => Navigator.of(context).push(
                   MaterialPageRoute<void>(
                     builder: (_) => AutomationCandidateListPage(
+                      controller: controller,
+                    ),
+                  ),
+                ),
+              ),
+              ListTile(
+                title: Text('自动记账诊断（${controller.diagnostics.length}）'),
+                subtitle: const Text('仅记录脱敏状态和失败原因，不保存通知原文'),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (_) => AutomationDiagnosticsPage(
                       controller: controller,
                     ),
                   ),
